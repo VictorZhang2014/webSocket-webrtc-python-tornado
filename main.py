@@ -7,6 +7,8 @@ import logging
 from enum import Enum
 
 from EventSourceController import EventSourceDemoController, EventSourceController, H5JumpToAppController
+from SimpleWebSocket import SimpleWebSocket
+
 
 from tornado.options import define, options
 define("port", default=7777, help="run on the given port", type=int)
@@ -75,8 +77,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         # 接收消息
         self.handleMessage(message)
         logger = PPLogger()
-        # logger.write("执行到这里0")
-        # logger.write("执行到这里-1")
+        logger.write("执行到这里0")
+        logger.write("执行到这里-1")
         logger.write("on_message：客户端数量: " + str(len(allClients)))
         logger.write("on_message：客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
 
@@ -207,6 +209,7 @@ def make_app():
         [
             (r"/", MainHandler),
             (r"/websocket", EchoWebSocket),
+            (r"/websocket2", SimpleWebSocket),
             (r"/eventsourcedemo", EventSourceDemoController),
             (r"/eventsource", EventSourceController),
             (r"/h5JumpToApp", H5JumpToAppController)
