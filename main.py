@@ -73,10 +73,10 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         # 接收消息
-        logger = PPLogger()
-        logger.write("执行到这里-1")
         self.handleMessage(message)
-        logger.write("执行到这里0")
+        logger = PPLogger()
+        # logger.write("执行到这里0")
+        # logger.write("执行到这里-1")
         logger.write("on_message：客户端数量: " + str(len(allClients)))
         logger.write("on_message：客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
 
@@ -113,6 +113,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
     def handleMessage(self, bytesData):
         # 处理接收到的消息
+        logger = PPLogger()
+        logger.write("执行到这里1")
         message = bytesData # str(bytesData, encoding="utf-8")
         jsonDict = json.loads(message)
         protocol = jsonDict["protocol"]
@@ -120,9 +122,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         userName = jsonDict["userName"]
         content = jsonDict["content"]
         self.roomNumber = roomNumber
-        logger = PPLogger()
         clients = None
-        logger.write("执行到这里1")
         if ProtocolTypes(protocol) == ProtocolTypes.createRoom: # 接收：创建会话房间
             logger.write("创建会话房间")
             clients = self.getConnectedClients(roomNumber)
