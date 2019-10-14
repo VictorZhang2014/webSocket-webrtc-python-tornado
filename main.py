@@ -119,6 +119,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.roomNumber = roomNumber
         logger = PPLogger()
         clients = None
+        logger.write("执行到这里")
         if ProtocolTypes(protocol) == ProtocolTypes.createRoom: # 接收：创建会话房间
             logger.write("创建会话房间")
             clients = self.getConnectedClients(roomNumber)
