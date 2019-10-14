@@ -86,7 +86,11 @@
         var wsProtocol = 'https:' == document.location.protocol ? "wss:": "ws:";
         ws = new WebSocket(wsProtocol + window.location.host + "/websocket")
         // ws.binaryType = "arraybuffer";
-        ws.onopen = onOpenEvent;
+        ws.onopen = function (event) {
+            showMessages("连接服务器成功！");
+            showMessages("会话号：" + roomNumber + "，创建会话成功，可以开始聊天了~")
+            sendData(ProtocolEnum.createRoom, roomNumber)
+        }
         ws.onmessage = onMessageEvent;
         ws.onclose = function (event) {
             showMessages("服务器断开连接。");
@@ -98,11 +102,7 @@
             showMessages(event);
         }
 
-        function onOpenEvent(event) {
-            showMessages("连接服务器成功！");
-            showMessages("会话号：" + roomNumber + "，创建会话成功，可以开始聊天了~")
-            sendData(ProtocolEnum.createRoom, roomNumber)
-        }
+        
 
         function onMessageEvent(event) {
             let jsonDict = JSON.parse(event.data);
