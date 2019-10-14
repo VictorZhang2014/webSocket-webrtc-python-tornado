@@ -4,6 +4,17 @@ import tornado.web
 import time
 
 
+
+class H5JumpToAppController(tornado.web.RequestHandler):
+
+    def __init__(self, *args, **kwargs):
+        super(H5JumpToAppController, self).__init__(*args, **kwargs)
+        
+
+    def get(self):
+        self.render("h5JumptToApp.html")
+
+
 class EventSourceDemoController(tornado.web.RequestHandler):
 
     def __init__(self, *args, **kwargs):

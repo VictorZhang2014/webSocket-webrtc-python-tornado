@@ -6,7 +6,7 @@ import json
 import logging
 from enum import Enum
 
-from EventSourceController import EventSourceDemoController, EventSourceController
+from EventSourceController import EventSourceDemoController, EventSourceController, H5JumpToAppController
 
 from tornado.options import define, options
 define("port", default=7777, help="run on the given port", type=int)
@@ -76,8 +76,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         self.handleMessage(bytesData)
         logger.write("执行到这里0")
         logger = PPLogger()
-        logger.write("客户端数量: " + str(len(EchoWebSocket.allClients)))
-        logger.write("客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
+        logger.write("on_message：客户端数量: " + str(len(EchoWebSocket.allClients)))
+        logger.write("on_message：客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
 
 
     def on_pong(self, data):
@@ -207,7 +207,8 @@ def make_app():
             (r"/", MainHandler),
             (r"/websocket", EchoWebSocket),
             (r"/eventsourcedemo", EventSourceDemoController),
-            (r"/eventsource", EventSourceController)
+            (r"/eventsource", EventSourceController),
+            (r"/h5JumpToApp", H5JumpToAppController)
         ], 
         debug=True,
         **settings
