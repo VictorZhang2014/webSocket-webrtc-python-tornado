@@ -39,6 +39,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
     def open(self):
         print("WebSocket opened. IP: {}".format(self.request.remote_ip))
+        EchoWebSocket.allClients.append(self)
         
 
     def check_origin(self, origin):
@@ -125,7 +126,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
             if room["roomNumber"] == roomNumber:
                 if self not in room["clients"]:
                     room["clients"].append(self)
-                    EchoWebSocket.allClients.append(self)
                 roomInstane = room
                 break
         if roomInstane == None:
