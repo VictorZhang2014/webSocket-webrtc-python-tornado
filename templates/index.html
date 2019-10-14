@@ -1,0 +1,194 @@
+<html>
+<head>
+    
+</head>
+<body>
+
+<div>
+<input type="text" value="" placeholder="输入号码" id="roomNumber" />
+<input type="button" value="新建会话" onclick="createSession()" />
+</div>
+
+<br/>
+<br/>
+<br/>
+
+<div>
+<select multiple style="width:600px;height:300px;" id="messageListOptions">
+</select>
+<div id="messageImgs">
+</div>
+</div>
+
+<div>
+<input type="text" value="" placeholder="请输入昵称" id="userName" />
+<input type="text" value="" placeholder="请输入内容" id="content" />
+<input type="button" value="发送" onclick="sendContent()" />
+</div>
+
+<br/>
+<br/>
+<br/>
+
+<input type="file" id="filename" />
+<input type="button" value="Upload" onclick="sendFile()" /> 
+
+<script>
+    var ws = null;
+    var roomNumber = null;
+
+    function sendContent() {
+        var userName = document.getElementById("userName").value;
+        if (userName.length <= 0) {
+            document.getElementById("userName").focus();
+            alert("请输入昵称")
+            return
+        }
+        var content = document.getElementById("content").value;
+        if (content.length <= 0) {
+            document.getElementById("content").focus();
+            alert("请输入要发送的内容")
+            return 
+        }
+        if (ws == null) {
+            alert("请先连接服务器！");
+            return 
+        }
+        let data = {
+            "protocol" : ProtocolEnum.sendContent,
+            "userName": userName,
+            "roomNumber" : roomNumber,
+            "content" : content
+        }
+        let jsonData = JSON.stringify(data);
+        ws.send(encodeByUTF8(jsonData));
+        document.getElementById("content").value = "";
+    }
+
+    function createSession() {
+        roomNumber = document.getElementById("roomNumber").value;
+        if (roomNumber.length <= 0) {
+            alert("请输入会话号！");
+            return;
+        }
+        connectToServer(roomNumber);
+    }
+
+    // 查阅官方文档：https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+    
+    function showMessages(text) {
+        var messageListOptions = document.getElementById("messageListOptions");
+        messageListOptions.options.add(new Option(text, ""))
+    }
+
+    function connectToServer(roomNumber) {
+        showMessages("正在连接服务器...");
+        var wsProtocol = 'https:' == document.location.protocol ? "wss:": "ws:";
+        ws = new WebSocket(wsProtocol + "localhost:8100/websocket")
+        ws.binaryType = "arraybuffer";
+        ws.onopen = onOpenEvent;
+        ws.onmessage = onMessageEvent;
+        ws.onclose = function (event) {
+            showMessages("服务器断开连接。");
+            showMessages(event);
+        }
+        ws.onerror = function (event) {
+            showMessages("连接发错了错误！");
+            showMessages(event);
+        }
+
+        function onOpenEvent(event) {
+            showMessages("连接服务器成功！");
+            showMessages("会话号：" + roomNumber + "，创建会话成功，可以开始聊天了~")
+            sendData(ProtocolEnum.createRoom, roomNumber)
+        }
+
+        function onMessageEvent(event) {
+            let jsonDict = JSON.parse(event.data);
+            let protocol = jsonDict["protocol"]
+            let roomNumber = jsonDict["roomNumber"]
+            let userName = jsonDict["userName"]
+            let content = jsonDict["content"]
+            if (protocol == ProtocolEnum.sendFile) {
+                var img=document.createElement("img");
+                img.src = content;
+                img.style.width="200px";
+                document.getElementById("messageImgs").append(img);
+                // sendData(ProtocolEnum.sendContent, roomNumber, userName, "给你发了一张图片")
+            } else {
+                showMessages(userName + "：" + content)
+            }
+        }
+    }
+
+    // 协议枚举
+    const ProtocolEnum = {
+        createRoom: 1001,
+        sendContent: 1002,
+        sendFile: 1003
+    }
+    // 发送数据到服务器
+    function sendData(protocolEnumVal, roomNumber, userName="", content="") {
+        let data = {
+            "protocol" : protocolEnumVal,
+            "roomNumber" : roomNumber,
+            "userName": userName,
+            "content" : content
+        }
+        console.log(data)
+        let jsonData = JSON.stringify(data)
+        ws.send(jsonData);
+    }
+
+    function sendFile() {
+        var userName = document.getElementById("userName").value;
+        if (userName.length <= 0) {
+            document.getElementById("userName").focus();
+            alert("请输入昵称")
+            return
+        }
+
+        var file = document.getElementById('filename').files[0];
+        var reader = new FileReader();
+        var rawData = new ArrayBuffer();            
+        reader.loadend = function() {
+        }
+
+        reader.onload = function(e) {
+            rawData = e.target.result; 
+            sendData(ProtocolEnum.sendFile, roomNumber, userName, rawData)
+            console.log("the File has been transferred.")
+        }
+        //reader.readAsArrayBuffer(file);
+        reader.readAsDataURL(file);
+    }
+
+    function encodeByUTF8(str) {
+        var enc = new TextEncoder();
+        return enc.encode(str)
+    }
+
+    function decodeByUTF8(str) {
+        var enc = new TextDecoder();
+        return enc.decode(str)
+    }
+
+    function ab2str(buf) {
+        // https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
+        return String.fromCharCode.apply(null, new Uint16Array(buf));
+    }
+
+    function str2ab(str) {
+        // https://developers.google.com/web/updates/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
+        var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+        var bufView = new Uint16Array(buf);
+        for (var i=0, strLen=str.length; i < strLen; i++) {
+            bufView[i] = str.charCodeAt(i);
+        }
+        return buf;
+    }
+
+    // https://www.toptal.com/tornado/simple-python-websocket-server
+    </script>
+</body>
+</html>
