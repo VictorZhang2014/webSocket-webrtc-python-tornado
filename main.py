@@ -99,8 +99,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         logger.write("WebSocket closed")
         EchoWebSocket.allClients.remove(self)
         self.removeClientInRoom(self.roomNumber, self)
-        logger.write("客户端数量: " + str(len(EchoWebSocket.allClients)))
-        logger.write("客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
+        logger.write("on_close：客户端数量: " + str(len(EchoWebSocket.allClients)))
+        logger.write("on_close：客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
         if len(EchoWebSocket.roomClients) > 0:
             logger.write("该房间有{}客户端".format(str(len(EchoWebSocket.roomClients[0]["clients"]))))
 
