@@ -85,7 +85,7 @@
         showMessages("正在连接服务器...");
         var wsProtocol = 'https:' == document.location.protocol ? "wss:": "ws:";
         ws = new WebSocket(wsProtocol + window.location.host + "/websocket")
-        // ws.binaryType = "arraybuffer";
+        ws.binaryType = "arraybuffer";
         ws.onopen = function (event) {
             showMessages("连接服务器成功！");
             showMessages("会话号：" + roomNumber + "，创建会话成功，可以开始聊天了~")
