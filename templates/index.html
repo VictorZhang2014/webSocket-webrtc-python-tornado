@@ -101,7 +101,7 @@
             let jsonData = JSON.stringify(data)
             console.log("==================b")
             console.log(jsonData)
-            ws.send(jsonData);
+            ws.send(encodeByUTF8(jsonData));
         }
         ws.onmessage = onMessageEvent;
         ws.onclose = function (event) {
