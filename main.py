@@ -77,7 +77,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         logger.write("执行到这里-1")
         self.handleMessage(message)
         logger.write("执行到这里0")
-        logger = PPLogger()
         logger.write("on_message：客户端数量: " + str(len(allClients)))
         logger.write("on_message：客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
 
