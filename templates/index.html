@@ -91,6 +91,7 @@
         ws.onclose = function (event) {
             showMessages("服务器断开连接。");
             showMessages(event);
+            console.log(event)
         }
         ws.onerror = function (event) {
             showMessages("连接发错了错误！");
