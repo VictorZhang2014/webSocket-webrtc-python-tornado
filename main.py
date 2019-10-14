@@ -49,8 +49,9 @@ class ProtocolTypes(Enum):
     sendFile        = 1003
 
 
+allClients = []
+
 class EchoWebSocket(tornado.websocket.WebSocketHandler):
-    allClients = []
     roomClients = []
 
     def __init__(self, application, request, **kwargs):
@@ -61,7 +62,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def open(self):
         logger = PPLogger()
         logger.write("WebSocket opened. IP: {}".format(self.request.remote_ip))
-        EchoWebSocket.allClients.append(self)
+        allClients.append(self)
         
 
     def check_origin(self, origin):
@@ -72,11 +73,12 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
     def on_message(self, message):
         # 接收消息
+        logger = PPLogger()
         logger.write("执行到这里-1")
         self.handleMessage(message)
         logger.write("执行到这里0")
         logger = PPLogger()
-        logger.write("on_message：客户端数量: " + str(len(EchoWebSocket.allClients)))
+        logger.write("on_message：客户端数量: " + str(len(allClients)))
         logger.write("on_message：客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
 
 
@@ -97,9 +99,9 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def on_close(self):
         logger = PPLogger()
         logger.write("WebSocket closed")
-        EchoWebSocket.allClients.remove(self)
+        allClients.remove(self)
         self.removeClientInRoom(self.roomNumber, self)
-        logger.write("on_close：客户端数量: " + str(len(EchoWebSocket.allClients)))
+        logger.write("on_close：客户端数量: " + str(len(allClients)))
         logger.write("on_close：客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
         if len(EchoWebSocket.roomClients) > 0:
             logger.write("该房间有{}客户端".format(str(len(EchoWebSocket.roomClients[0]["clients"]))))
@@ -181,7 +183,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         # 创建聊天房间
         # if len(EchoWebSocket.roomClients) <= 0:
         EchoWebSocket.roomClients.append({"roomNumber" : roomNumber, "clients" : [client]})
-        EchoWebSocket.allClients.append(client)
+        allClients.append(client)
         # else:
         #     foundRoom = False
         #     for room in EchoWebSocket.roomClients:
