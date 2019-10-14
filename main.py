@@ -70,10 +70,10 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         # parsed_origin = urllib.parse.urlparse(origin)
         # return parsed_origin.netloc.endswith(".mydomain.com")
 
-    def on_message(self, bytesData):
+    def on_message(self, message):
         # 接收消息
         logger.write("执行到这里-1")
-        self.handleMessage(bytesData)
+        self.handleMessage(message)
         logger.write("执行到这里0")
         logger = PPLogger()
         logger.write("on_message：客户端数量: " + str(len(EchoWebSocket.allClients)))
