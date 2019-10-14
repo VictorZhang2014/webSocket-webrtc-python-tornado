@@ -8,7 +8,7 @@ from enum import Enum
 from EventSourceController import EventSourceDemoController, EventSourceController
 
 from tornado.options import define, options
-define("port", default=8100, help="run on the given port", type=int)
+define("port", default=7777, help="run on the given port", type=int)
 
 
 class MainHandler(tornado.web.RequestHandler):
