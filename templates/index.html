@@ -94,10 +94,13 @@
                 "protocol" : 1002,
                 "roomNumber" : roomNumber,
                 "userName": "userName",
-                "content" : "fdafjdakf;j"
+                "content" : "fdafjdakfj"
             }
+            console.log("==================a")
             console.log(data)
             let jsonData = JSON.stringify(data)
+            console.log("==================b")
+            console.log(jsonData)
             ws.send(jsonData);
         }
         ws.onmessage = onMessageEvent;
