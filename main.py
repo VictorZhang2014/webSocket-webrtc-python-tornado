@@ -3,12 +3,33 @@ import tornado.web
 import tornado.websocket
 import os 
 import json
+import logging
 from enum import Enum
 
 from EventSourceController import EventSourceDemoController, EventSourceController
 
 from tornado.options import define, options
 define("port", default=7777, help="run on the given port", type=int)
+
+
+
+
+class PPLogger: 
+    def __init__(self): 
+        self.logger = logging.getLogger('/home/telabytes_www/www/CodeManager.log')
+        # self.logger.setLevel(logging.INFO) 
+        # formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s','%m-%d %H:%M:%S')
+        # formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        # ch = logging.StreamHandler()
+        # ch.setLevel(logging.INFO)
+        # ch.setFormatter(formatter)
+        # self.logger.addHandler(ch)
+
+    def write(self, msg):
+        self.logger.info(msg)
+
+
+
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -38,7 +59,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
 
 
     def open(self):
-        print("WebSocket opened. IP: {}".format(self.request.remote_ip))
+        logger = PPLogger()
+        logger.write("WebSocket opened. IP: {}".format(self.request.remote_ip))
         EchoWebSocket.allClients.append(self)
         
 
@@ -51,22 +73,39 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def on_message(self, bytesData):
         # 接收消息
         self.handleMessage(bytesData)
-        print("客户端数量: " + str(len(EchoWebSocket.allClients)))
-        print("客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
+        logger = PPLogger()
+        logger.write("客户端数量: " + str(len(EchoWebSocket.allClients)))
+        logger.write("客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
+
+
+    def on_pong(self, data):
+        """Invoked when the response to a ping frame is received."""
+        logger = PPLogger()
+        logger.write("进入了on_pong:")
+        logger.write(data)
+
+
+    def on_ping(self, data):
+        """Invoked when the a ping frame is received."""
+        logger = PPLogger()
+        logger.write("on_ping:")
+        logger.write(data)
 
 
     def on_close(self):
-        print("WebSocket closed")
+        logger = PPLogger()
+        logger.write("WebSocket closed")
         EchoWebSocket.allClients.remove(self)
         self.removeClientInRoom(self.roomNumber, self)
-        print("客户端数量: " + str(len(EchoWebSocket.allClients)))
-        print("客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
+        logger.write("客户端数量: " + str(len(EchoWebSocket.allClients)))
+        logger.write("客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
         if len(EchoWebSocket.roomClients) > 0:
-            print("该房间有{}客户端".format(str(len(EchoWebSocket.roomClients[0]["clients"]))))
+            logger.write("该房间有{}客户端".format(str(len(EchoWebSocket.roomClients[0]["clients"]))))
 
 
     def close(self, code, reason):
-        print("Websocket closed, code={}, reason={}", code, reason)
+        logger = PPLogger()
+        logger.write("Websocket closed, code={}, reason={}", code, reason)
 
 
     def handleMessage(self, bytesData):
@@ -78,18 +117,19 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         userName = jsonDict["userName"]
         content = jsonDict["content"]
         self.roomNumber = roomNumber
+        logger = PPLogger()
         clients = None
         if ProtocolTypes(protocol) == ProtocolTypes.createRoom: # 接收：创建会话房间
-            print("创建会话房间")
+            logger.write("创建会话房间")
             clients = self.getConnectedClients(roomNumber)
-            print(jsonDict)
+            logger.write(jsonDict)
         else:
             if ProtocolTypes(protocol) == ProtocolTypes.sendContent: # 接收：发送内容
-                print("发送内容")
+                logger.write("发送内容")
                 clients = self.getConnectedClients(roomNumber)
-                print(jsonDict)
+                logger.write(jsonDict)
             elif ProtocolTypes(protocol) == ProtocolTypes.sendFile: # 接收：发送文件
-                print("发送文件")
+                logger.write("发送文件")
                 clients = self.getConnectedClients(roomNumber)
             # 只要有大于一个用户的房间就可以发消息发给多个客户端了
             if len(clients) > 1:
@@ -98,7 +138,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
                 for client in clients:
                     # if client != self:  # 不包括自己
                     client.write_message(wtmsg)
-        print("该房间号{}有{}客户端".format(roomNumber, len(clients)))
+        logger.write("该房间号{}有{}客户端".format(roomNumber, len(clients)))
 
 
     def getConnectedClients(self, roomNumber):
