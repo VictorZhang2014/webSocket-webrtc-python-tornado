@@ -64,13 +64,12 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         # Non-None enables compression with default options.
         return {}
 
-
     def open(self):
         logger = PPLogger()
         logger.write("WebSocket opened. IP: {}".format(self.request.remote_ip))
         allClients.append(self)
         
-        
+
     def check_origin(self, origin):
         return True
         # To allow connections from any subdomain of your site, you might do something like:
@@ -81,24 +80,8 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         # 接收消息
         self.handleMessage(message)
         logger = PPLogger()
-        logger.write("执行到这里0")
-        logger.write("执行到这里-1")
         logger.write("on_message：客户端数量: " + str(len(allClients)))
         logger.write("on_message：客户端房间数量: " + str(len(EchoWebSocket.roomClients)))
-
-
-    def on_pong(self, data):
-        """Invoked when the response to a ping frame is received."""
-        logger = PPLogger()
-        logger.write("进入了on_pong:")
-        logger.write(data)
-
-
-    def on_ping(self, data):
-        """Invoked when the a ping frame is received."""
-        logger = PPLogger()
-        logger.write("on_ping:")
-        logger.write(data)
 
 
     def on_close(self):
@@ -120,7 +103,6 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def handleMessage(self, bytesData):
         # 处理接收到的消息
         logger = PPLogger()
-        logger.write("执行到这里1")
         message = bytesData # str(bytesData, encoding="utf-8")
         jsonDict = json.loads(message)
         protocol = jsonDict["protocol"]
