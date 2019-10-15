@@ -60,13 +60,17 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
         super(EchoWebSocket, self).__init__(application, request, **kwargs)
         self.roomNumber = -1
 
+    def get_compression_options(self):
+        # Non-None enables compression with default options.
+        return {}
+
 
     def open(self):
         logger = PPLogger()
         logger.write("WebSocket opened. IP: {}".format(self.request.remote_ip))
         allClients.append(self)
         
-
+        
     def check_origin(self, origin):
         return True
         # To allow connections from any subdomain of your site, you might do something like:
